@@ -1,11 +1,10 @@
-
 #include "Ds1820Adv.h"
 
 Ds1820Adv::Ds1820Adv(OneWire* _oneWire){
       _wire = _oneWire;
 }
 
-int Ds1820Adv::dsSearch (){
+void Ds1820Adv::dsSearch (){
   int dsCounter = 0;
   while  (_wire->search(addr)){
     dsCounter++;
@@ -13,23 +12,22 @@ int Ds1820Adv::dsSearch (){
   _wire->reset_search();
   delay(250);
   dsCount = dsCounter;
-  return dsCounter;
 }
 
-void Ds1820Adv::dsCreateArrays(int count){
+void Ds1820Adv::dsCreateArrays(){
   if (dsCount == 0) return;
-  dsAddr = new byte*[count];
-  dsData = new byte*[count];
-  dsTemp = new float[count];
-  for (int i = 0; i<count; i++){
+  dsAddr = new byte*[dsCount];
+  dsData = new byte*[dsCount];
+  dsTemp = new float[dsCount];
+  for (int i = 0; i<dsCount; i++){
     dsAddr[i] = new byte[8];
     dsData[i] = new byte[9];
   }
 }
 
-void Ds1820Adv::dsDeleteArrays(int count){
+void Ds1820Adv::dsDeleteArrays(){
   if (dsCount == 0) return;
-  for (int i = 0; i<count; i++){
+  for (int i = 0; i<dsCount; i++){
     delete[] dsAddr[i];
     delete[] dsData[i];
   }
@@ -44,7 +42,13 @@ void Ds1820Adv::dsFillAddr(){
   }
 }
 
-void Ds1820Adv::dsStartConversion (){
+void Ds1820Adv::dsInit() {
+  dsSearch();
+  dsCreateArrays();
+  dsFillAddr();
+}
+
+void Ds1820Adv::dsStartConversion(){
   if (dsCount == 0) return;
   for (byte i = 0; i < dsCount; i++){
     _wire->reset();
@@ -53,7 +57,7 @@ void Ds1820Adv::dsStartConversion (){
   }
 }
 
-void Ds1820Adv::dsReadData (){
+void Ds1820Adv::dsReadData(){
   if (dsCount == 0) return;
   for (byte i = 0; i < dsCount; i++){
     _wire->reset();
@@ -73,6 +77,30 @@ void Ds1820Adv::dsCalcData(){
     raw = (raw & 0xFFF0) + 12 - dsData[i][6];
     dsTemp[i] = (float)raw / 16.0;
   }
+}
+
+bool Ds1820Adv::dsQuery(){
+  if (lastTime == 0) {
+    dsStartConversion();
+    lastTime = millis();
+#if DEBUG
+    Serial << "lastTime = 0" << endl;
+#endif
+  }
+  if ((millis() - lastTime) > 1000) {
+    dsReadData();
+    dsCalcData();
+    dsStartConversion();
+    lastTime = millis();
+#if DEBUG
+    Serial << "lastTime = millis" << endl;
+#endif
+    return true;
+  }
+#if DEBUG
+  Serial << "millis - lasttime = " << millis() - lastTime << endl;
+#endif
+  return false;
 }
 
 void Ds1820Adv::dsPrintAddr(){
