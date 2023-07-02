@@ -5,13 +5,12 @@ Ds1820Adv::Ds1820Adv(OneWire* _oneWire){
 }
 
 void Ds1820Adv::dsSearch (){
-  int dsCounter = 0;
+  dsCount = 0;
   while  (_wire->search(addr)){
-    dsCounter++;
+    dsCount++;
   }
   _wire->reset_search();
   delay(250);
-  dsCount = dsCounter;
 }
 
 void Ds1820Adv::dsCreateArrays(){
@@ -80,6 +79,7 @@ void Ds1820Adv::dsCalcData(){
 }
 
 bool Ds1820Adv::dsQuery(){
+  if (dsCount == 0) return false;
   if (lastTime == 0) {
     dsStartConversion();
     lastTime = millis();
