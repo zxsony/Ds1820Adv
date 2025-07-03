@@ -1,9 +1,9 @@
 #ifndef Ds1820Adv_h
 #define Ds1820Adv_h
 
-#ifndef DEBUG
-#define DEBUG false
-#endif
+//#ifndef DEBUG
+//#define DEBUG false
+//#endif
 
 #include "Arduino.h"
 #include <OneWire.h>

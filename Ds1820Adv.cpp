@@ -83,23 +83,23 @@ bool Ds1820Adv::dsQuery(){
   if (lastTime == 0) {
     dsStartConversion();
     lastTime = millis();
-#if DEBUG
-    Serial << "lastTime = 0" << endl;
-#endif
+//#if DEBUG
+//    Serial << "lastTime = 0" << endl;
+//#endif
   }
   if ((millis() - lastTime) > 1000) {
     dsReadData();
     dsCalcData();
     dsStartConversion();
     lastTime = millis();
-#if DEBUG
-    Serial << "lastTime = millis" << endl;
-#endif
+//#if DEBUG
+//    Serial << "lastTime = millis" << endl;
+//#endif
     return true;
   }
-#if DEBUG
-  Serial << "millis - lasttime = " << millis() - lastTime << endl;
-#endif
+//#if DEBUG
+//  Serial << "millis - lasttime = " << millis() - lastTime << endl;
+//#endif
   return false;
 }
 
